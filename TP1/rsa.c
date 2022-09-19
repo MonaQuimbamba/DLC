@@ -37,9 +37,7 @@ int main(int argc, char* argv[]){
   mpz_set_str(z_m,"0x4548a949e5207233e8b1fc88e896d9da2bbf5d8948338db6dd332c0ebf01ad1d34d61d6f148ea87e8e1d7f3d97645739db6489ef22272312f155255939d92e25a9da580a16109ecc4c69d0442f68394dc9a37fe8186c574859a3048970299e12db743025802c46b8a583b8f5b9c9dd5db95c8b583cf039c34e89f206abc82775",0);
   mpz_set_str(z_c,"0x96794d4b033ad45cd2b27e199aa27de76801ab04dff67cd1afd79ebd349744ff2a0b0afa2b4fb8f556a8e52d5d0c53536481bc4daf8453c9adcd473e8d9f1a74afdc6901dbce1c7b123d41e6eaf23125ccfe07da3aa69ef25794ad8779f21d605af85571f8e0dcd7b9c43d0b9033fd2c8aa01b7846010ca6985f7491db2ee9db",0);
   // dechiffrer
-  //mpz_powm (rop,z_c,z_d,z_n);
-
-
+  
     bit_size =  mpz_sizeinbase(z_d, 2);
 
     mpz_set_ui(z_result, 1);
