@@ -20,8 +20,8 @@ int main(int argc,char* argv[])
 {
      unsigned int k;
      mpz_t rand;
-     mpz_t bord_max;
-     mp_bitcnt_t rand_b;
+
+
      unsigned int bit_size;
      unsigned long int seed;
      int isprime;
@@ -36,8 +36,8 @@ int main(int argc,char* argv[])
 
 
      k= atoi(argv[1]);
-     mpz_inits(rand,bord_max,mod,NULL);
-     mpz_set_str(bord_max, "8497391829048797593184398274916519319103580", 0);
+     mpz_inits(rand,mod,NULL);
+  
      
      printf("Entrer la seed :");
      scanf("%ld", &seed);  
@@ -49,7 +49,7 @@ int main(int argc,char* argv[])
      gmp_randinit_default(mon_generateur); 
      gmp_randseed_ui(mon_generateur, seed);
 
-     int i=10;   
+ 
      while(1){
 
      	mpz_urandomb(rand,mon_generateur,k);
@@ -58,8 +58,7 @@ int main(int argc,char* argv[])
       mpz_mod_ui(mod,rand,20);
 	   if ( mpz_cmp_ui(mod,0) ==0 ) {
          	// test to stop  
-		
-         printf("\n");
+               printf("\n");
      		gmp_printf("le rand %Zd\n",rand);
      		printf("la seed %ld \n",seed);
      		printf("%u bits, %u chiffres \n", bit_size, (unsigned int) ceil(bit_size / (log(10) / log(2))));
@@ -71,7 +70,7 @@ int main(int argc,char* argv[])
      
      // free all 
      gmp_randclear (mon_generateur);
-     mpz_clears(rand,bord_max,mod,NULL);
+     mpz_clears(rand,mod,NULL);
      
      return 0;
 

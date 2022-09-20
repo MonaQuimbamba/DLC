@@ -64,7 +64,10 @@ int main(int argc,char* argv[])
      while(1){
 
      	mpz_urandomb(rand,mon_generateur,k-1);
-      //add ici rand + 2^k-1 
+      //add ici rand + 2^(k)-1 
+      mpz_ui_pow_ui(bord_add,2,k-1);
+  
+      mpz_add(rand,rand,bord_add);
      	bit_size = mpz_sizeinbase(rand, 2);
       chiffre = (unsigned int) ceil(bit_size/(log(10)/log(2)));
 

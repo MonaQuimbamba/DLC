@@ -5,7 +5,8 @@
 
 
 /*
- *Le fichier private key.txt contient les valeurs du module "n" et de l’exposant
+ *
+ Le fichier private key.txt contient les valeurs du module "n" et de l’exposant
       prive "d" d’une ce RSA de 1024 bits.
 
   Ecrivez un programme qui utilise cette cle pour dechiffrer le chiffre "c"

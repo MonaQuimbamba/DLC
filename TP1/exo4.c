@@ -37,7 +37,7 @@ int main(int argc,char* argv[])
      unsigned int k;
      mpz_t rand;
      mpz_t bord_max;
-
+     mpz_t bord_add;
      mp_bitcnt_t rand_b;
      unsigned int bit_size;
      unsigned long int seed;
@@ -52,7 +52,7 @@ int main(int argc,char* argv[])
 
 
      k= atoi(argv[1]);
-     mpz_inits(rand,bord_max,NULL);
+     mpz_inits(rand,bord_max,bord_add,NULL);
     
 
      
@@ -70,7 +70,12 @@ int main(int argc,char* argv[])
 
      while(1){
 
+      mpz_ui_pow_ui(bord_max,10,k-1);
      	mpz_urandomm(rand,mon_generateur,bord_max);
+      mpz_ui_pow_ui(bord_add,10,k-1);
+      mpz_add(rand,rand,bord_add);
+
+   
      	bit_size = mpz_sizeinbase(rand, 2);
       chiffre = (unsigned int) ceil(bit_size/(log(10)/log(2)));
 
@@ -89,7 +94,7 @@ int main(int argc,char* argv[])
      }
      // free all 
      gmp_randclear (mon_generateur);
-     mpz_clears(rand,bord_max,NULL);
+     mpz_clears(rand,bord_max,bord_add,NULL);
      
      return 0;
 
