@@ -26,15 +26,33 @@
 
 int main(int argc, char* argv[]){
 
-	mpz_t z_n;
-	mpz_t z_d;
-	mpz_t z_m;
-	mpz_t z_c;
-  unsigned int  bit_size;
-  mpz_t z_result;
-  mpz_t z_r;
-  int mode;
+        mpz_t z_n;
+        mpz_t z_d;
+        mpz_t z_m;
+        mpz_t z_c;
+        unsigned int  bit_size;
+        mpz_t z_result;
+        mpz_t z_r;
+        int mode;
 
+        mpz_inits(z_n,z_d,z_m,z_c,z_result,z_r,NULL);
+        FILE *fp_cipher;
+        FILE *fp_plain;
+        FILE *fp_keys;
+     
+        fp_cipher = fopen("Ressources/ciphertext.txt","r");
+        gmp_fscanf(fp_cipher, "%*c%*c%*c%*c%Zx", z_c);
+     
+
+
+
+        fp_plain = fopen("Ressources/plaintext.txt","r");
+        gmp_fscanf(fp_plain, "%*c%*c%*c%*c%Zx", z_m);
+
+
+
+        fp_keys = fopen("Ressources/private_key.txt","r");
+        gmp_fscanf(fp_keys, "%*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx", z_n , z_d);
 
 
 
@@ -56,14 +74,7 @@ int main(int argc, char* argv[]){
       else if (atoi(argv[1])==1 || atoi(argv[1])==2  ){
 
             mode = atoi(argv[1]);
-            mpz_inits(z_n,z_d,z_m,z_c,z_result,z_r,NULL);
-            mpz_set_str(z_n,"0xae828886a1990cde8d02955ba7ca8ee6f572d6030f947aa26d4643e5f00e824bbc7b962904f04ab5bb4682f661c2b8b86bd2c0c04b4de86aac8b9f5086e253e5d1297ece80a4d5b5b3d5f82d8ba878dc031e1a19b6af1aa3ac29c5a8df46cb3743f866311e1df3be3d62d6395633c900c7ac5138d34c825b8f37fbf70842879d",0);
-            mpz_set_str(z_d,"0x4c2500d55de59e4bed5357406af263703b612428a9bfabd2fbc351151fadf5047ef59e0bbfefe9696a91d5cb13d5172cc13f708377584335689c73a37b777e0b6c524c4a9ab7e4b78e67ee9ffd3acdb1d6dfda7c42db40eebb0901a74cf2508e5316d9227b1c09dd798f52fd335185e0958fb36271c13260a2650e3b074a5e31",0);
-            mpz_set_str(z_m,"0x4548a949e5207233e8b1fc88e896d9da2bbf5d8948338db6dd332c0ebf01ad1d34d61d6f148ea87e8e1d7f3d97645739db6489ef22272312f155255939d92e25a9da580a16109ecc4c69d0442f68394dc9a37fe8186c574859a3048970299e12db743025802c46b8a583b8f5b9c9dd5db95c8b583cf039c34e89f206abc82775",0);
-            mpz_set_str(z_c,"0x96794d4b033ad45cd2b27e199aa27de76801ab04dff67cd1afd79ebd349744ff2a0b0afa2b4fb8f556a8e52d5d0c53536481bc4daf8453c9adcd473e8d9f1a74afdc6901dbce1c7b123d41e6eaf23125ccfe07da3aa69ef25794ad8779f21d605af85571f8e0dcd7b9c43d0b9033fd2c8aa01b7846010ca6985f7491db2ee9db",0);
-            // dechiffrer
-            
-              bit_size =  mpz_sizeinbase(z_d, 2);
+            bit_size =  mpz_sizeinbase(z_d, 2);
 
               mpz_set_ui(z_result, 1);
               mpz_set(z_r, z_c);

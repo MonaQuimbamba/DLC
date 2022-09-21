@@ -110,6 +110,8 @@ int main(int argc,char* argv[])
                          while(1){
 
                          mpz_urandomm(rand,mon_generateur,bord_max);
+                         
+
                          bit_size = mpz_sizeinbase(rand, 2);
                          chiffre = (unsigned int) ceil(bit_size/(log(10)/log(2)));
 
