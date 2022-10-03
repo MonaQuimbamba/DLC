@@ -27,12 +27,12 @@ d ́echiffre un fichier chiffr ́e.
 
 void encrypt_rsa( mpz_t c, mpz_t m,mpz_t  n,mpz_t  e) 
 {
-        mpz_powm (mpz_t c, mpz_t m, mpz_t e, mpz_t n);
+        mpz_powm (c,m,e,n);
 }
 
 void decrypt_rsa( mpz_t m, mpz_t c,mpz_t  n,mpz_t  d) 
 {
-    mpz_powm (mpz_t m, mpz_t c, mpz_t d, mpz_t n);
+    mpz_powm (m,c,d,n);
 }
 
 
@@ -40,14 +40,59 @@ int main(int argc,char* argv[])
 {
    
      mpz_t z_e,z_n,z_d,z_c,z_m;
-     mpz_inits(z_e,z_n,z_d,z_c,z_m;NULL);
+   
   
-
+     FILE *fp_cipher;
+     FILE *fp_plain;
+     FILE *fp_keys;
+     
 
      if (argc != 4 ){
-     	printf("Usage : %s <file> <RSA keys> <d/e>  \n", argv[0]);
+     	printf("Usage : %s  <-d/e> <file> <RSA keys>  \n", argv[0]);
      	exit(-1);
      }
+
+    char mode= argv[1][0];
+
+   // inits 
+    mpz_inits(z_e,z_n,z_d,z_c,z_m,NULL);
+   
+    switch (mode)
+    {
+        case 'e' :
+           
+            fp_cipher = fopen(argv[2],"r");
+            gmp_fscanf(fp_cipher, "%*c%*c%*c%*c%Zx", z_m);
+            fp_keys = fopen(argv[3],"r");
+            gmp_fscanf(fp_keys, "%*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx",z_e, z_n , z_d);
+            
+            encrypt_rsa( z_c, z_m,z_n,z_e); 
+            gmp_printf("c = %Zx\n",z_c);
+           /* gmp_printf("e= %Zx\n",z_e);
+            gmp_printf("n= %Zx\n",z_n);
+            gmp_printf("d= %Zx\n",z_d);*/
+            fclose(fp_cipher);
+            fclose(fp_keys);
+        break;
+
+        case 'd':
+
+            fp_plain = fopen(argv[2],"r");
+            gmp_fscanf(fp_plain, "%*c%*c%*c%*c%Zx", z_c);
+
+            fp_keys = fopen(argv[3],"r");
+            gmp_fscanf(fp_keys, "%*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx",z_e, z_n , z_d);
+            
+            decrypt_rsa(z_m, z_c,z_n,z_d);
+            gmp_printf("m = %Zx\n",z_m);
+            /*gmp_printf("e= %Zx\n",z_e);
+            gmp_printf("n= %Zx\n",z_n);
+            gmp_printf("d= %Zx\n",z_d);*/
+            fclose(fp_plain);
+            fclose(fp_keys);
+ 
+        break;
+    }
 
  
      mpz_clears(z_e,z_n,z_d,z_c,z_m,NULL);

@@ -109,7 +109,7 @@ while(1){
      int inver;
      inver=   mpz_invert(z_d,z_e,phi);
      /// print resultats 
-    /* bit_size = mpz_sizeinbase(z_q, 2);
+     /*bit_size = mpz_sizeinbase(z_q, 2);
      gmp_printf("q= %Zd  %u bits, %u chiffres \n",z_q, bit_size,(unsigned int) ceil(bit_size / (log(10) / log(2))));
      printf("\n");
      bit_size = mpz_sizeinbase(z_p, 2);
@@ -126,9 +126,9 @@ while(1){
      */
      // to save the keys on fille by redirection 
    
-     gmp_printf("e= %Zx  \n",z_e);
-     gmp_printf("n= %Zx  \n",z_n);
-     gmp_printf("d= %Zx  \n",z_d);
+     gmp_printf("e = %Zx  \n",z_e);
+     gmp_printf("n = %Zx  \n",z_n);
+     gmp_printf("d = %Zx  \n",z_d);
    
      gmp_randclear (mon_generateur);
      mpz_clears(z_p,z_q,z_n,z_e,z_d,rand,z_gcd,bord_add,phi,NULL);
