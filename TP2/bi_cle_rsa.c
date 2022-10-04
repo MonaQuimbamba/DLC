@@ -42,17 +42,17 @@ int main(int argc,char* argv[])
      k=k/2;
      e= atoi(argv[2]);
    
-   /***
+   /********************************
     ===> 1   // generation de p et q 
-   */
+   *********************************/
    
      mpz_inits(z_p,z_q,z_n,z_e,z_d,rand,z_gcd,bord_add,phi,NULL);
      mpz_set_ui(z_e,e);
      seed=time(NULL);     
-   /*
+   /***************************************
     generer un rand entre 0 et 2^(k-1) - 1
      et puis ajouter 2^(k)-1
-   */
+   ****************************************/
    gmp_randstate_t mon_generateur; 
    gmp_randinit_default(mon_generateur); 
    gmp_randseed_ui(mon_generateur, seed);
