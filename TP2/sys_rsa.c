@@ -48,11 +48,47 @@ char hexToInt(char c){
  
 }
 
+void writte_the_cypher(mpz_t c)
+{
+    FILE *out;
+    //printf(" taille %d \n", (int)mpz_size);
+   // char res[(int)mpz_size];
+   /*char str[128];
+   mpz_t tab[128];
+   mpz_t r,q,base;
+   mpz_inits(r,q,base,NULL);
+    printf(" [ ");
+   for(int i =0 ; i< 128 ; i++){
+
+        mpz_ui_pow_ui(base,256,i);
+        mpz_cdiv_qr(q,r,c,base);
+        if(mpz_cmp_ui(q,0)!=0){
+             mpz_set(c,r);
+             //tab[i]=q;
+             gmp_printf("q= %Zx ",q);
+             gmp_printf("r= %Zx ",r); 
+             gmp_printf("base= %Zx ",base); 
+        }
+
+   }
+    printf(" ]\n"); */
+
+    //gmp_sprintf(res, "%Zd", c);
+   out = fopen( "output.txt" , "a" );
+   //fwrite(res , 1 , sizeof(res), out );
+   mpz_out_str(out, 10, c);
+   fwrite("\n" , 1 , sizeof(char), out );
+   fclose(out);
+ 
+   //mpz_clears(r,q,base,NULL);
+
+}
+
 
 int main(int argc,char* argv[])
 {
    
-     mpz_t z_e,z_n,z_d,z_c,z_m,base;
+     mpz_t z_e,z_n,z_d,z_c,z_m,base,z_q;
 
      char buffer_plain[BLOCK+1];
      int num;
@@ -70,20 +106,25 @@ int main(int argc,char* argv[])
     char mode= argv[1][0];
 
    // inits 
-    mpz_inits(z_e,z_n,z_d,z_c,z_m,base,NULL);
-   
+    mpz_inits(z_e,z_n,z_d,z_c,z_m,z_q,base,NULL);
+
+
+    //mpz_set_str(z_n, "1848917392784198379327149238139743214", 0);
+    //char  res[37] ;// = mpz_get_str(NULL,10,z_n);
+    //gmp_printf(" %Zd ",z_n);
+    
+    
     switch (mode)
     {
         case 'e' :
            
-            fp_keys = fopen(argv[3],"r");
+            fp_keys = fopen(argv[3],"r"); // retrieve the RSA keys 
             gmp_fscanf(fp_keys, "%*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx",z_e, z_n , z_d);
-            fp_plain = fopen(argv[2], "r");
+            // retrieve the file to encrypt 
+            fp_plain = fopen(argv[2], "r"); 
             fseek(fp_plain, 0L, SEEK_END);
             long int taille_file = ftell(fp_plain);
-            //printf(" the size of file %ld \n",taille_file);
             rewind(fp_plain);
-            
            fp_plain = fopen(argv[2], "r");
             while(1)
             {
@@ -97,7 +138,8 @@ int main(int argc,char* argv[])
                         mpz_add(z_m,z_m,base);
                     }
                       encrypt_rsa(z_c, z_m,z_n,z_e); 
-                      gmp_printf("%Zx\n",z_c); //write that into file 
+                      writte_the_cypher(z_c);
+                      gmp_printf("[ %Zu ]\n ",z_c); //write that into file 
                     
                     }
                 taille_file -= BLOCK;
@@ -109,33 +151,63 @@ int main(int argc,char* argv[])
               fclose( fp_plain );
               fclose(fp_keys);
             //gmp_printf("c = %Zx\n",z_c);
-           /* gmp_printf("e= %Zx\n",z_e);
-            gmp_printf("n= %Zx\n",z_n);
-            gmp_printf("d= %Zx\n",z_d);*/
+           // gmp_printf("e= %Zx\n",z_e);
+            //gmp_printf("n= %Zx\n",z_n);
+            //gmp_printf("d= %Zx\n",z_d);
 
         break;
 
         case 'd':
 
-            fp_plain = fopen(argv[2],"r");
-            gmp_fscanf(fp_plain, "%*c%*c%*c%*c%Zx", z_c);
-
+             // retrieve the RSA keys 
             fp_keys = fopen(argv[3],"r");
             gmp_fscanf(fp_keys, "%*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx %*c%*c%*c%*c%Zx",z_e, z_n , z_d);
             
-            decrypt_rsa(z_m, z_c,z_n,z_d);
-            gmp_printf("m = %Zx\n",z_m);
-            /*gmp_printf("e= %Zx\n",z_e);
-            gmp_printf("n= %Zx\n",z_n);
-            gmp_printf("d= %Zx\n",z_d);*/
-            fclose(fp_plain);
+            // retrieve the file to decrypt 
+            fp_cipher = fopen(argv[2],"r");
+            if(!fp_cipher){
+            printf("\n Unable to open : %s ", argv[2]);
+            return -1;
+            }
+            
+            char line[128];
+            while (fgets(line, sizeof(line), fp_cipher)) 
+            {
+                //memset(line, 0, sizeof(line));
+                 mpz_set_ui(z_c,0);
+                 for(int i=0 ; i <128; i++){
+
+                        mpz_set_ui(z_q,(int)line[i]);
+                        mpz_ui_pow_ui(base,256,i);
+                        mpz_divexact(z_q, z_q,base );
+                       //mpz_div_ui(base,base,(int)line[i]);
+                        //mpz_cdiv_qr_ui(mpz_t q, mpz_t r, mpz_t n, (int) line[i]);
+                        mpz_add(z_c,z_c,z_q);
+                       // printf("=> %d \n",(int)line[i]);
+                    }
+              
+                  //printf("%s  => %d \n", line,i); 
+                  //gmp_printf(" %Zd => %d\n", z_c,i);
+                  decrypt_rsa(z_m, z_c,z_n,z_d);
+                  gmp_printf("m = %Zx\n",z_m);
+   
+            
+            }
+  
+
+            //decrypt_rsa(z_m, z_c,z_n,z_d);
+            //gmp_printf("m = %Zx\n",z_m);
+            //gmp_printf("e= %Zx\n",z_e);
+            //gmp_printf("n= %Zx\n",z_n);
+            //gmp_printf("d= %Zx\n",z_d);
+            fclose(fp_cipher);
             fclose(fp_keys);
  
         break;
     }
 
  
-     mpz_clears(z_e,z_n,z_d,z_c,z_m,base,NULL);
+     mpz_clears(z_e,z_n,z_d,z_c,z_m,base,z_q,NULL);
 
 }
 
