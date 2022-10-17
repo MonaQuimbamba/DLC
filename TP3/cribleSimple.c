@@ -8,21 +8,6 @@
 #include <assert.h>
 #include "gmp.h"
 
-
-/**
- * 
- *  let 'n' be  an odd composite integer n-1 = 2^s*r with r odd 
- * 
- *  and a base 'a'  1 <= a <= n-1
- * 
- *  the Miller-Rabin criterion  is verified if :
- *          => a^r =1 mod n 
- * 
- *          or if exist 0 <= j <= s-1  such that a^2jr = -1 mod n 
- * 
- *  
- * **/
-
 bool miller_rabin_base(mpz_t n , mpz_t base){ // this function computes s and r in n-1 = 2^s * r
 
     mpz_t x,s,r,resmod,z_gcd,test;     
@@ -75,7 +60,6 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output){
     gmp_randstate_t mon_generateur; 
 
     bool  res=false;
-
     // initilize variables 
     mpz_inits(x,s,r,resmod,z_gcd,test,n_1,n_3,rand_base,j,NULL);
     mpz_sub_ui(x,n,1);
@@ -120,54 +104,97 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output){
     }
     
    mpz_clears(x,s,r,resmod,z_gcd,test,n_1,n_3,rand_base,j,NULL);
+
   return res;
 }
 
 
-void find_r_primes_miller_rabin(__uint64_t b , __uint64_t t, __uint64_t r){
 
+void basic_sieve(uint16_t b , uint16_t k , uint16_t t,mpz_t *my_array, mpz_t output ){
 
-        mpz_t rand,bord_add,base;
+ 
+    
+        mpz_t bord_add,base,q;
         gmp_randstate_t mon_generateur; 
         gmp_randinit_default(mon_generateur); 
         gmp_randseed_ui(mon_generateur, time(NULL));
-        mpz_inits(rand,bord_add,base,NULL);
+        mpz_inits(bord_add,base,q,NULL);
 
-        while( r > 0){
-            mpz_urandomb(rand,mon_generateur,b-1);
-            mpz_ui_pow_ui(bord_add,2,b-1);
-            mpz_add(rand,rand,bord_add);
-            if (miller_rabin(rand,t,base)==1) {
-               
-               if (miller_rabin_base(rand,base) == 1){
-                   // reduire r and test if it's real prime 
-                    r--;
-                    gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
-                    int bit_size = mpz_sizeinbase(rand, 2);
-                    printf("%u bits \n", bit_size);
-               }
+
+    
+        mpz_urandomb(q,mon_generateur,b-1);
+        mpz_ui_pow_ui(bord_add,2,b-1);
+        mpz_add(q,q,bord_add);
+        int j;
+step2:
+        j = 0;
+     
+        while( j <= k){
+
+            if( mpz_cmp_ui(my_array[j],0)!=0){
+                
+                if(mpz_divisible_p(my_array[j],q)==0)
+                    mpz_add_ui(q,q,2); goto step2;
+                j++;
             }
-        }
+         
 
-      mpz_clears(rand,bord_add,base,NULL);
+        }
+        if (miller_rabin(q,t,base) != 1)     mpz_add_ui(q,q,2);  goto step2;
+
+       
+        mpz_set(output,q);
+
 }
+
+
 
 
 int main(int argc,char* argv[])
 {
-
-   __uint64_t b,t,r;
-  
     if (argc != 4 ){
-     	printf("Usage : %s b  t  r   \n", argv[0]);
+     	printf("Usage : %s b  k  t   \n", argv[0]);
      	exit(-1);
      }
 
-     b= atoi(argv[1]);
-     t= atoi(argv[2]);
-     r= atoi(argv[2]);
-        
-    find_r_primes_miller_rabin(b,t,r);
+    uint16_t b= atoi(argv[1]);
+    uint16_t k= atoi(argv[2]);
+    uint16_t t= atoi(argv[3]);
+
+    mpz_t *my_array;
+    my_array = malloc(sizeof(mpz_t) * k-1);
+
+    mpz_t rand,base;
+    mpz_inits(rand,base,NULL);
+
+      mpz_t output;
+    mpz_init(output);
+   
+    mpz_set_ui(rand,2);
+    mpz_init_set(my_array[0],rand);
+    mpz_set_ui(rand,3);
+    mpz_init_set(my_array[1],rand);
+    int i=2;
+    int p=4;
+    for(int j=0 ; j < k-1; j++)
+    {
+          mpz_set_ui(rand,p);
+        if (miller_rabin(rand,t,base)==1)
+         {
+           if (miller_rabin_base(rand,base) == 1)
+            {
+               mpz_init_set(my_array[i],rand);
+                i++;  
+            }
+        }
+        if(p>k) break;
+        else      p+=1;
+    
+    }
+
+  
+    basic_sieve(b,k,t,my_array,output);
+  
     return 1;
      
 }
