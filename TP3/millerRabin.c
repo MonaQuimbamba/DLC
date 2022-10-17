@@ -69,10 +69,10 @@ bool miller_rabin_base(mpz_t n , mpz_t base){ // this function computes s and r 
 } 
 
 
-bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output){
+bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output,gmp_randstate_t mon_generateur){
 
     mpz_t x,s,r,resmod,z_gcd,test,base,rand_base,n_1,n_3,j;     
-    gmp_randstate_t mon_generateur; 
+
 
     bool  res=false;
 
@@ -88,8 +88,7 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output){
     mpz_set(r,x);
     mpz_mod_ui(resmod,r,2);
 
-    gmp_randinit_default(mon_generateur); 
-    gmp_randseed_ui(mon_generateur, time(NULL));
+
 
     if(mpz_odd_p(n)!=0){
 
@@ -124,28 +123,40 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output){
 }
 
 
-void find_r_primes_miller_rabin(__uint64_t b , __uint64_t t, __uint64_t r){
+void find_r_primes_miller_rabin(__uint64_t b , __uint64_t t, __uint64_t r,gmp_randstate_t mon_generateur){
 
 
         mpz_t rand,bord_add,base;
-        gmp_randstate_t mon_generateur; 
-        gmp_randinit_default(mon_generateur); 
-        gmp_randseed_ui(mon_generateur, time(NULL));
+        int isprime;
+
+
+  
+
         mpz_inits(rand,bord_add,base,NULL);
 
         while( r > 0){
             mpz_urandomb(rand,mon_generateur,b-1);
             mpz_ui_pow_ui(bord_add,2,b-1);
             mpz_add(rand,rand,bord_add);
-            if (miller_rabin(rand,t,base)==1) {
+            if (miller_rabin(rand,t,base,mon_generateur)==1) {
                
-               if (miller_rabin_base(rand,base) == 1){
+               /*if (miller_rabin_base(rand,base) == 1){
                    // reduire r and test if it's real prime 
                     r--;
                     gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
                     int bit_size = mpz_sizeinbase(rand, 2);
                     printf("%u bits \n", bit_size);
-               }
+               }*/
+
+                isprime = mpz_probab_prime_p(rand, 10);
+                if (isprime ==1 || isprime==2){
+
+                    r--;
+                    gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
+                    int bit_size = mpz_sizeinbase(rand, 2);
+                    printf("%u bits \n", bit_size);
+
+                }
             }
         }
 
@@ -156,6 +167,10 @@ void find_r_primes_miller_rabin(__uint64_t b , __uint64_t t, __uint64_t r){
 int main(int argc,char* argv[])
 {
 
+        gmp_randstate_t mon_generateur; 
+        gmp_randinit_default(mon_generateur); 
+        gmp_randseed_ui(mon_generateur, time(NULL));
+
    __uint64_t b,t,r;
   
     if (argc != 4 ){
@@ -165,9 +180,11 @@ int main(int argc,char* argv[])
 
      b= atoi(argv[1]);
      t= atoi(argv[2]);
-     r= atoi(argv[2]);
+     r= atoi(argv[3]);
         
-    find_r_primes_miller_rabin(b,t,r);
+    find_r_primes_miller_rabin(b,t,r,mon_generateur);
+
+          gmp_randclear(mon_generateur); 
     return 1;
      
 }

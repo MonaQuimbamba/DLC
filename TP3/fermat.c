@@ -86,13 +86,11 @@ une estimation de la densit ́e de premiers parmi les entiers de taille 512
 ou 1024 bits.
 ***/
 
-void program_fermat(__uint64_t b , __uint64_t t, __uint64_t r,mpz_t base){
+void program_fermat(__uint64_t b , __uint64_t t, __uint64_t r,mpz_t base,gmp_randstate_t mon_generateur){
 
 
         mpz_t rand,bord_add;
-        gmp_randstate_t mon_generateur; 
-        gmp_randinit_default(mon_generateur); 
-        gmp_randseed_ui(mon_generateur, time(NULL));
+
 
         mpz_inits(rand,bord_add,NULL);
 
@@ -117,13 +115,11 @@ ln x premiers, vous v ́erifierez qu’il l’est effectivement 2 et l’affiche
 si tel n’est pas le cas
 **/
 
-void find_r_primes_fermat(__uint64_t b , __uint64_t t, __uint64_t r){
+void find_r_primes_fermat(__uint64_t b , __uint64_t t, __uint64_t r,gmp_randstate_t mon_generateur){
 
 
         mpz_t rand,bord_add,base;
-        gmp_randstate_t mon_generateur; 
-        gmp_randinit_default(mon_generateur); 
-        gmp_randseed_ui(mon_generateur, time(NULL));
+        int isprime;
         mpz_inits(rand,bord_add,base,NULL);
 
         while( r > 0){
@@ -132,13 +128,22 @@ void find_r_primes_fermat(__uint64_t b , __uint64_t t, __uint64_t r){
             mpz_add(rand,rand,bord_add);
             if (fermat(rand,t,base)==1) {
                
-               if (fermat_base(rand,base) == 1){
+               /*if (fermat_base(rand,base) == 1){
                     // reduire r and test if it's real prime 
                     r--;
                     gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
                     int bit_size = mpz_sizeinbase(rand, 2);
                     printf("%u bits \n", bit_size);
-               }
+               }*/
+                isprime = mpz_probab_prime_p(rand, 10);
+                if (isprime ==1 || isprime==2){
+
+                    r--;
+                    gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
+                    int bit_size = mpz_sizeinbase(rand, 2);
+                    printf("%u bits \n", bit_size);
+
+                }
             }
         }
 
@@ -150,6 +155,11 @@ void find_r_primes_fermat(__uint64_t b , __uint64_t t, __uint64_t r){
 
 int main(int argc,char* argv[])
 {
+
+
+        gmp_randstate_t mon_generateur; 
+        gmp_randinit_default(mon_generateur); 
+        gmp_randseed_ui(mon_generateur, time(NULL));
      __uint64_t b,t,r;
   
     if (argc != 4 ){
@@ -159,10 +169,11 @@ int main(int argc,char* argv[])
 
      b= atoi(argv[1]);
      t= atoi(argv[2]);
-     r= atoi(argv[2]);
+     r= atoi(argv[3]);
 
 
-   find_r_primes_fermat(b,t,r);
+   find_r_primes_fermat(b,t,r,mon_generateur);
+         gmp_randclear(mon_generateur); 
 
 
 
