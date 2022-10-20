@@ -6,7 +6,17 @@
 #include <string.h>
 #include <inttypes.h>
 #include <assert.h>
+#include  <sys/types.h> 
+#include  <sys/resource.h>
 #include "gmp.h"
+
+
+unsigned long int cputime()
+{
+struct rusage rus;
+getrusage (0, &rus);
+return rus.ru_utime.tv_sec * 1000 + rus.ru_utime.tv_usec / 1000;
+}
 
 bool miller_rabin_base(mpz_t n , mpz_t base){ // this function computes s and r in n-1 = 2^s * r
 
@@ -116,31 +126,34 @@ bool basic_sieve(uint16_t b , uint16_t k , uint16_t t,mpz_t *my_array,mpz_t outp
 
  
         mpz_t bord_add,base,q;
-           bool res = false;
+        bool res = false;
         mpz_inits(bord_add,base,q,NULL);
         mpz_urandomb(q,mon_generateur,b-1);
         mpz_ui_pow_ui(bord_add,2,b-1);
         mpz_add(q,q,bord_add);
 
  
-       int j;
-     
-       /* for(int i = 0 ; i < k ; i ++){
-                int v = mpz_divisible_p(my_array[i],q);
+        int j;
+        for(int i = 1 ; i < k ; i ++){
+            if(mpz_cmp_ui(my_array[i],0)!=0){
+                 int v = mpz_divisible_p(q,my_array[i]);
                 if( v !=0){
-                    // miller rabin 
-                        /*if (miller_rabin(q,t,base)==1) 
+                       // miller rabin 
+                        if (miller_rabin(q,t,base)==1) 
                         {
-                        res= true;
-                        //gmp_printf(" q est premier = %Zu  dans la base  %Zu  \n", q , base );
+                           res= true;
+                           //gmp_printf(" q est premier = %Zu  dans la base  %Zu  \n", q , base );
                         }
                         else{
                             mpz_clears(bord_add,base,q,NULL);
                   
                          return false;
-                        }*/
-           //     }
-       // }
+                        }
+               }
+
+            }
+            
+        }
 
         mpz_set(output,q);
         mpz_clears(bord_add,base,q,NULL);
@@ -159,15 +172,35 @@ void find_r_primes(int b , int k , int t, int r,mpz_t *my_array,gmp_randstate_t 
             {
 
                 r--;
-                   gmp_printf(" n %Zu est prime   ",prime);
+                   gmp_printf("%Zu  %ld\n",prime,cputime());
                   int bit_size = mpz_sizeinbase(prime, 2);
-                   printf("%u bits \n", bit_size);
+                   //printf("%u bits \n", bit_size);
             }
          }
         mpz_clear(prime);
 
 }
 
+
+void cribleOpt(mpz_t* primes,uint64_t k){
+    int  i, j;  
+    int limit = sqrt(k);  
+  
+    for(i = 0; i < k; i++)  mpz_init_set_ui(primes[i],i+1);
+
+    for(i = 1; i <= limit; i++)  
+    {  
+        if(mpz_cmp_ui(primes[i],0) != 0)  
+        {  
+            for(j = pow(num[i], 2); j <= N; j = j + num[i])  
+            {  
+                num[j - 1] = 0;  
+            }  
+        }  
+  
+    }  
+
+}
 int main(int argc,char* argv[])
 {
 
@@ -187,42 +220,58 @@ int main(int argc,char* argv[])
     uint16_t t= atoi(argv[3]);
     uint16_t r= atoi(argv[4]);
 
-    mpz_t *my_array;
-    my_array = malloc(sizeof(mpz_t) * k-1);
+    mpz_t *primes;
+    primes = malloc(sizeof(mpz_t) * k-1);
 
-    mpz_t rand,base;
-    mpz_inits(rand,base,NULL);
+    mpz_t rand,base,output,testBoucle,mult,j,minus;
+    mpz_inits(rand,base,output,testBoucle,mult,j,minus,NULL);
 
-    mpz_t output;
-    mpz_init(output);
-   
-    mpz_set_ui(rand,2);
-    mpz_init_set(my_array[0],rand);
-   // mpz_set_ui(rand,3);
-    //mpz_init_set(my_array[1],rand);
-    int i=2;
-    int p=4;
-    int isprime;
-    // the list of all primes small than k 
-    for(int j=3 ; j < k-1; j++)
-    {
-        mpz_set_ui(rand,j);
-        isprime = mpz_probab_prime_p(rand, 10);
-        if (isprime ==1 || isprime==2){
-           // mpz_init_set(my_array[j-2],rand);
-                i++;  
-        }
-        //else       mpz_init_set_ui(my_array[j-2],0);
-       // if(p==k) break;
-        //else p+=1;
-    }
-
-
-    for(int i =0 ; i < k-1; i++) gmp_printf(" %Zu ",my_array[i]);
   
-    //basic_sieve(b,k,t,my_array);
-   // find_r_primes(b,k,t,r,my_array,mon_generateur);
-            gmp_randclear(mon_generateur); 
-    return 1;
+   
+
+
+   
+    int  i;  
+    for(i = 0; i < k; i++)  mpz_init_set_ui(primes[i],i+1);
+
+    mpz_mul(mult,primes[1],primes[1]);
+    mpz_set(testBoucle,mult);
+    i=1;
+    while( mpz_cmp_ui(testBoucle,k)<0)  
+    {  
+        if(mpz_cmp_ui(primes[i],0) != 0)  
+        {  
+            mpz_mul(mult,primes[i],primes[i]);
+            mpz_set(testBoucle,mult);
+            mpz_set(j,mult);
+            while(mpz_cmp_ui(j,k) <0) 
+            {  
+                
+                mpz_sub_ui(minus,j,1);
+                int index=mpz_get_ui(minus);
+      
+                mpz_set_ui(primes[index],0);
+                mpz_add(j,j,primes[i]);
+            }  
+        }  
+        ++i;
+        mpz_mul(mult,primes[i],primes[i]);
+        mpz_set(testBoucle,mult);
+    }  
+  
+    
+
+
+    //for(int i =1 ; i < k; i++) gmp_printf(" %Zu ",primes[i]);
+  
+    //basic_sieve(b,k,t,primes,output,mon_generateur);
+     find_r_primes(b,k,t,r,primes,mon_generateur);
+    gmp_randclear(mon_generateur); 
+
+    //printf(" time %ld",cputime());
+    return 0;
      
 }
+
+
+//https://technotip.com/9436/prime-numbers-using-sieve-of-eratosthenes-c-program/
