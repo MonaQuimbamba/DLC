@@ -118,8 +118,6 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output){
   return res;
 }
 
-
-
 bool makePrime(uint16_t b , uint16_t k , uint16_t t,mpz_t *my_array,mpz_t output, gmp_randstate_t mon_generateur ){
 
 
@@ -161,7 +159,6 @@ bool makePrime(uint16_t b , uint16_t k , uint16_t t,mpz_t *my_array,mpz_t output
 
     return res;
 }
-
 
 
 void find_r_primes(int b , int k , int t, int r,mpz_t *my_array,gmp_randstate_t mon_generateur ){
@@ -245,8 +242,6 @@ void criblesimple(mpz_t * primes,uint64_t k){
   
 
 }
-
-
 
 int main(int argc,char* argv[])
 {

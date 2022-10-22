@@ -23,7 +23,7 @@
  *  
  * **/
 
-bool miller_rabin_base(mpz_t n , mpz_t base){ // this function computes s and r in n-1 = 2^s * r
+bool miller_rabin_base(mpz_t n , mpz_t base){
 
     mpz_t x,s,r,resmod,z_gcd,test;     
     mpz_inits(x,s,r,resmod,z_gcd,test,NULL);
@@ -34,8 +34,8 @@ bool miller_rabin_base(mpz_t n , mpz_t base){ // this function computes s and r 
 
     while (mpz_cmp_ui(resmod,0)== 0) 
     {
-        mpz_add_ui(s,s,1);             // increment the value of s
-        mpz_tdiv_q_ui(r,r,2);          // half r in every iteration
+        mpz_add_ui(s,s,1);            
+        mpz_tdiv_q_ui(r,r,2);         
         mpz_mod_ui(resmod,r,2);
 
     }
@@ -76,7 +76,6 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output,gmp_randstate_t mon_
 
     bool  res=false;
 
-    // initilize variables 
     mpz_inits(x,s,r,resmod,z_gcd,test,n_1,n_3,rand_base,j,NULL);
     mpz_sub_ui(x,n,1);
     
@@ -94,8 +93,8 @@ bool  miller_rabin(mpz_t n , __uint64_t t,mpz_t base_output,gmp_randstate_t mon_
 
      while (mpz_cmp_ui(resmod,0)== 0) 
     {
-        mpz_add_ui(s,s,1);             // increment the value of s
-        mpz_tdiv_q_ui(r,r,2);          // half r in every iteration
+        mpz_add_ui(s,s,1);            
+        mpz_tdiv_q_ui(r,r,2);         
         mpz_mod_ui(resmod,r,2);
     }
 
@@ -164,7 +163,7 @@ void find_r_primes_miller_rabin(__uint64_t b , __uint64_t t, __uint64_t r,gmp_ra
 }
 
 
-int main(int argc,char* argv[])
+void main(int argc,char* argv[])
 {
 
         gmp_randstate_t mon_generateur; 
@@ -183,8 +182,9 @@ int main(int argc,char* argv[])
      r= atoi(argv[3]);
         
     find_r_primes_miller_rabin(b,t,r,mon_generateur);
+  
 
           gmp_randclear(mon_generateur); 
-    return 1;
+ 
      
 }

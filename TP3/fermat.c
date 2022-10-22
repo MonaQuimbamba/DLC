@@ -90,8 +90,6 @@ void program_fermat(__uint64_t b , __uint64_t t, __uint64_t r,mpz_t base,gmp_ran
 
 
         mpz_t rand,bord_add;
-
-
         mpz_inits(rand,bord_add,NULL);
 
         for (int i =0 ; i < r ; i++){
@@ -127,17 +125,8 @@ void find_r_primes_fermat(__uint64_t b , __uint64_t t, __uint64_t r,gmp_randstat
             mpz_ui_pow_ui(bord_add,2,b-1);
             mpz_add(rand,rand,bord_add);
             if (fermat(rand,t,base)==1) {
-               
-               /*if (fermat_base(rand,base) == 1){
-                    // reduire r and test if it's real prime 
-                    r--;
-                    gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
-                    int bit_size = mpz_sizeinbase(rand, 2);
-                    printf("%u bits \n", bit_size);
-               }*/
                 isprime = mpz_probab_prime_p(rand, 10);
                 if (isprime ==1 || isprime==2){
-
                     r--;
                     gmp_printf(" n %Zu est prime dans la base %Zu  ",rand,base);
                     int bit_size = mpz_sizeinbase(rand, 2);
@@ -153,7 +142,7 @@ void find_r_primes_fermat(__uint64_t b , __uint64_t t, __uint64_t r,gmp_randstat
 
 
 
-int main(int argc,char* argv[])
+void main(int argc,char* argv[])
 {
 
 
@@ -172,8 +161,8 @@ int main(int argc,char* argv[])
      r= atoi(argv[3]);
 
 
-   find_r_primes_fermat(b,t,r,mon_generateur);
-         gmp_randclear(mon_generateur); 
+    find_r_primes_fermat(b,t,r,mon_generateur);
+    gmp_randclear(mon_generateur); 
 
 
 
