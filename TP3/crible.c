@@ -243,7 +243,7 @@ void criblesimple(mpz_t * primes,uint64_t k){
 
 }
 
-int main(int argc,char* argv[])
+void main(int argc,char* argv[])
 {
 
     gmp_randstate_t mon_generateur; 
@@ -271,6 +271,6 @@ int main(int argc,char* argv[])
     //makePrime(b,k,t,primes,output,mon_generateur);
     find_r_primes(b,k,t,r,primes,mon_generateur);
     gmp_randclear(mon_generateur); 
-    return 0;
+
      
 }
